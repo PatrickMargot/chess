@@ -5,8 +5,8 @@ Try it out on https://patrickmargot.github.io/chess/.
 
 ## Installation
 
-1. Clone project  
-2.
+Clone project, then:
+
 ```bash
 yarn install
 yarn start
