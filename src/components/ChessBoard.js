@@ -27,9 +27,9 @@ import { COLORS, PIECES, CHESSBOARD_TYPE } from '../constants';
 const borderRadius = 7;
 
 const useStyles = makeStyles(theme => ({
-  root: ({ notInteractable, chessBoardTheme }) => ({
+  root: ({ isComputerRound, chessBoardTheme }) => ({
     height: '100%',
-    pointerEvents: notInteractable ? 'none' : 'auto',
+    pointerEvents: isComputerRound ? 'none' : 'auto',
     display: 'grid',
     placeContent: 'center',
     gridTemplateRows: 'repeat(8, 1fr)',
@@ -77,21 +77,15 @@ function ChessBoard(props) {
 
   const chessBoard = chessBoardHistory[chessBoardHistory.length - 1];
 
-  const setChessBoard = chessBoard => {
+  function setChessBoard(chessBoard) {
 
-    const start = performance.now();
-
-    setChessBoardHistory([...chessBoardHistory, chessBoard])
-
-    console.log(performance.now() - start);
-
-  };
+    setChessBoardHistory([...chessBoardHistory, chessBoard]);
+    
+  }
 
   const [selectedPosition, setSelectedPosition] = useState(null);
 
   const [dialogText, setDialogText] = useState(null);
-
-  const movesRef = useRef([]);
 
   const history = useHistory();
 
@@ -107,64 +101,61 @@ function ChessBoard(props) {
     chessBoardType === CHESSBOARD_TYPE.AUTOPLAY
     || (chessBoardType === CHESSBOARD_TYPE.COMPUTER && playerColor === COLORS.BLACK);
 
+  const moves = selectedPosition && getMoves(selectedPosition, chessBoard);
+
   const classes = useStyles({
-    notInteractable: isComputerRound,
-    chessBoardTheme
+    isComputerRound,
+    chessBoardTheme,
   });
+
 
   useEffect(() => {
 
-    chessBoardType !== CHESSBOARD_TYPE.AUTOPLAY
-      && chessBoardHistory.length > 1
-      && localStorage.setItem(chessBoardType, JSON.stringify(chessBoardHistory));
+    if (chessBoardType !== CHESSBOARD_TYPE.AUTOPLAY) {
 
+      // add state to localStorage
+      chessBoardHistory.length > 1
+        && localStorage.setItem(chessBoardType, JSON.stringify(chessBoardHistory));
 
-    const allMoves = getAllMoves(playerColor, chessBoard);
+      // check if game is over
+      const allMoves = getAllMoves(playerColor, chessBoard);
 
-    if (chessBoardType !== CHESSBOARD_TYPE.AUTOPLAY && allMoves.length === 0) {
+      if (allMoves.length === 0) {
 
-      const kingIsChecked = checkKingCheck(playerColor, chessBoard);
+        const kingIsChecked = checkKingCheck(playerColor, chessBoard);
 
-      const dialogMessage = kingIsChecked
-        ? `${capitalize(enemyColor)} won by checkmate.`
-        : `Draw by stalemate`
+        const dialogMessage = kingIsChecked
+          ? `${capitalize(enemyColor)} won by checkmate.`
+          : 'Draw by stalemate';
 
-      setTimeout(() => setDialogText(dialogMessage), 1000);
+        setTimeout(() => setDialogText(dialogMessage), 1000);
 
-      localStorage.removeItem(chessBoardType);
+        localStorage.removeItem(chessBoardType);
+
+      }
 
     }
 
+    // do a computer move
+    isComputerRound
+      && setTimeout(() => {
 
-    isComputerRound && setTimeout(() => {
+        const allMoves = getAllMoves(playerColor, chessBoard);
 
-      const allMoves = getAllMoves(playerColor, chessBoard);
+        const randomMove = allMoves[random(allMoves.length - 1)];
 
-      const randomMove = allMoves[random(allMoves.length - 1)];
+        if (randomMove === undefined) return;
 
-      if (randomMove === undefined) return;
+        const { position, move } = randomMove;
 
-      const { position, move } = randomMove;
+        const nextChessBoard = getNextChessBoard(position, move, chessBoard);
 
-      const nextChessBoard = getNextChessBoard(
-        position,
-        move,
-        chessBoard
-      );
+        setChessBoard(nextChessBoard);
 
-      setChessBoard(nextChessBoard);
+      }, chessBoardType === CHESSBOARD_TYPE.AUTOPLAY ? 3000 : 1000);
 
-    }, chessBoardType === CHESSBOARD_TYPE.AUTOPLAY ? 3000 : 1000);
+  }, [chessBoard]);
 
-  }, [ chessBoard ]);
-
-  function deselect() {
-
-    movesRef.current = [];
-
-    setSelectedPosition(null);
-
-  }
 
   function handleClick(position) {
 
@@ -172,71 +163,67 @@ function ChessBoard(props) {
 
     const clickedPiece = chessBoard[y][x];
 
-    if (selectedPosition && some(movesRef.current, { y, x })) {
+    // if selected and position is in moves, set next chess board
+    if (selectedPosition && some(moves, position)) {
 
       const nextChessBoard = getNextChessBoard(
         { y: selectedPosition.y, x: selectedPosition.x },
-        { y, x },
+        position,
         chessBoard
       );
 
       setChessBoard(nextChessBoard);
 
-      deselect();
+      setSelectedPosition(null);
 
+      // else if a piece was clicked, select
     } else if (clickedPiece) {
-
-      movesRef.current = getMoves(position, chessBoard);
 
       setSelectedPosition(position);
 
+      // else if something is selected, deselect
     } else if (selectedPosition) {
 
-      deselect();
+      setSelectedPosition(null);
 
     }
 
   }
 
-  const fields = chessBoard.map((row, y) => {
+  const fields = chessBoard.flatMap((row, y) => row.map((piece, x) => {
 
-    return row.map((piece, x) => {
+    const position = { y, x };
 
-      const position = { y, x };
+    const isMove = some(moves, position);
 
-      const isMove = some(movesRef.current, position);
+    const isSelected = selectedPosition && chessBoard[selectedPosition.y][selectedPosition.x] === piece;
 
-      const isSelected = selectedPosition && chessBoard[selectedPosition.y][selectedPosition.x] === piece;
+    const isChecked =
+      piece
+      && piece.name === PIECES.KING
+      && checkKingCheck(piece.color, chessBoard);
 
-      const isChecked =
-        piece
-        && piece.name === PIECES.KING
-        && checkKingCheck(piece.color, chessBoard);
+    return (
+      <Field
+        key={`${y}${x}`}
+        piece={piece}
+        playerColor={playerColor}
+        position={position}
+        backgroundColor={chessBoardTheme[
+          (y + x) % 2 === 0 ? COLORS.WHITE : COLORS.BLACK
+        ]}
+        isSelected={isSelected}
+        isMove={isMove}
+        isChecked={isChecked}
+        onClick={handleClick}
+      />
+    );
 
-      return (
-        <Field
-          key={`${y}${x}`}
-          piece={piece}
-          playerColor={playerColor}
-          position={position}
-          backgroundColor={chessBoardTheme[
-            (y + x) % 2 === 0 ? COLORS.WHITE : COLORS.BLACK
-          ]}
-          isSelected={isSelected}
-          isMove={isMove}
-          isChecked={isChecked}
-          onClick={handleClick}
-        />
-      );
-
-    });
-
-  });
+  }));
 
   return (
-    <div
-      className={classes.root}
-    >
+    <div className={classes.root}>
+
       <AnimateSharedLayout>
         {fields}
       </AnimateSharedLayout>
