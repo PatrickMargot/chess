@@ -62,21 +62,28 @@ function App() {
 
   }, [chessBoardTheme]);
 
-  const ChessBoardContainer = props => (
-    <motion.div
-      className={classes.chessBoardContainer}
-      initial={{
-        opacity: 0,
-        scale: 0.95,
-      }}
-      animate={{
-        opacity: 1,
-        scale: 1,
-      }}
-    >
-      {props.children}
-    </motion.div>
-  );
+  function ChessBoardContainer(props) {
+
+    return (
+      <motion.div
+        className={classes.chessBoardContainer}
+        initial={{
+          opacity: 0,
+          scale: 0.95,
+        }}
+        animate={{
+          opacity: 1,
+          scale: 1,
+          transition: {
+            duration: 0.4,
+          },
+        }}
+      >
+        {props.children}
+      </motion.div>
+    );
+
+  }
 
   return (
     <ThemeProvider theme={theme}>
