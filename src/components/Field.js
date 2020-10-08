@@ -100,7 +100,7 @@ function Field(props) {
       />
       <Piece
         piece={piece}
-        canInteract={canInteract}
+        canInteract={canInteract && !isMove}
         dragControls={dragControls}
       />
     </motion.div >
