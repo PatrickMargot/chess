@@ -1,5 +1,5 @@
-# Depreciation Calculator
-Chess is a chess app where you can play against a computer (a really bad one) or locally against a friend. 
+# Chess
+A chess app where you can play against a computer (a really bad one) or locally against a friend. 
 ### Built With
 * [React](https://reactjs.org/)
 * [Material-UI](https://material-ui.com/)
