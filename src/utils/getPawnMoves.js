@@ -2,42 +2,42 @@ import get from 'lodash/get';
 
 import { COLORS } from '../constants';
 
-export default function getPawnMoves(selectedPosition, chessBoard) {
+export default function getPawnMoves(pawnPosition, chessBoard) {
 
-  const { x, y } = selectedPosition;
+  const { x, y } = pawnPosition;
 
-  const piece = chessBoard[y][x];
+  const pawn = chessBoard[y][x];
 
   const moves = [];
 
-  const direction = piece.color === COLORS.WHITE ? -1 : 1;
+  const direction = pawn.color === COLORS.WHITE ? -1 : 1;
 
-  const pieceAhead = get(chessBoard, `${y + direction}[${x}]`);
+  const pieceAbove = get(chessBoard, `${y + direction}[${x}]`);
 
-  const pieceTwoAhead = get(chessBoard, `${y + 2 * direction}[${x}]`);
+  const pieceTwoAbove = get(chessBoard, `${y + 2 * direction}[${x}]`);
 
-  const pieceAheadLeft = get(chessBoard, `${y + direction}[${x - 1}]`);
+  const pieceAboveLeft = get(chessBoard, `${y + direction}[${x - 1}]`);
 
-  const pieceAheadRight = get(chessBoard, `${y + direction}[${x + 1}]`);
+  const pieceAboveRight = get(chessBoard, `${y + direction}[${x + 1}]`);
 
-  const pawnIsStarting = piece.color === COLORS.WHITE
+  const pawnIsStarting = pawn.color === COLORS.WHITE
     ? y === 6
     : y === 1;
 
-  pieceAhead === null
+  pieceAbove === null
     && moves.push({ y: y + direction, x });
 
-  pieceAhead === null
-    && pieceTwoAhead === null
+  pieceAbove === null
+    && pieceTwoAbove === null
     && pawnIsStarting
     && moves.push({ y: y + 2 * direction, x });
   
-  pieceAheadLeft
-    && pieceAheadLeft.color !== piece.color
+  pieceAboveLeft
+    && pieceAboveLeft.color !== pawn.color
     && moves.push({ y: y + direction, x: x - 1 });
 
-  pieceAheadRight
-    && pieceAheadRight.color !== piece.color
+  pieceAboveRight
+    && pieceAboveRight.color !== pawn.color
     && moves.push({ y: y + direction, x: x + 1 });
 
   return moves;
