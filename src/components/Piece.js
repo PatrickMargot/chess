@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faChessPawn,
@@ -11,6 +11,8 @@ import {
   faChessKing,
 } from '@fortawesome/free-solid-svg-icons';
 
+import { isMobile } from "react-device-detect";
+
 import { PIECES } from '../constants';
 
 const useStyles = makeStyles(theme => ({
@@ -18,7 +20,6 @@ const useStyles = makeStyles(theme => ({
     zIndex: isDragging ? 2 : 1,
     height: '100%',
     position: 'absolute',
-    pointerEvents: 'none',
     display: 'grid',
     placeItems: 'center',
   }),
@@ -45,12 +46,13 @@ function Piece(props) {
   const {
     piece,
     canInteract,
-    dragControls,
   } = props;
 
   const [isDragging, setIsDragging] = useState(false);
 
   const classes = useStyles({ isDragging });
+
+  const dragControls = useDragControls();
 
   return (
     <AnimatePresence>
@@ -59,7 +61,13 @@ function Piece(props) {
           key={piece.id}
           layoutId={piece.id}
           className={classes.root}
-          style={{ color: piece?.color }}
+          style={{
+            color: piece?.color,
+            pointerEvents: isDragging ? 'none' : 'auto',
+          }}
+          animate={{
+            scale: isMobile && isDragging ? 2 : 1,
+          }}
           exit={{
             opacity: 0,
             scale: 0,
@@ -70,6 +78,7 @@ function Piece(props) {
             stiffness: 1000,
             damping: 65,
           }}
+          onPointerDown={event => dragControls.start(event, { cursorProgress: { y: 0.5, x: 0.5 } })}
           drag={canInteract}
           onDragStart={() => setIsDragging(true)}
           onDragTransitionEnd={() => setIsDragging(false)}

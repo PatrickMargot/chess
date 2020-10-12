@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -89,6 +89,8 @@ function ChessBoard(props) {
 
   const history = useHistory();
 
+  const ref = useRef();
+
   const playerColor = chessBoardHistory.length % 2 === 0
     ? COLORS.BLACK
     : COLORS.WHITE;
@@ -168,7 +170,26 @@ function ChessBoard(props) {
   }, [chessBoard, windowIsFocused]);
 
 
-  function handleClick(position) {
+  function handleClick(position, clientCoords = null) {
+
+    if (clientCoords) {
+    
+      const { clientX, clientY } = clientCoords;
+
+      const elements = document.elementsFromPoint(clientX, clientY);
+
+      const fieldUnderFinger = elements.find(element => element.parentNode === ref.current);
+
+      const index = [...ref.current.children].indexOf(fieldUnderFinger);
+
+      if (index < 0) return;
+
+      position = {
+        y: Math.floor(index / 8),
+        x: index % 8,
+      };
+    
+    }
 
     const { y, x } = position;
 
@@ -233,7 +254,7 @@ function ChessBoard(props) {
   }));
 
   return (
-    <div className={classes.root}>
+    <div className={classes.root} ref={ref}>
 
       <AnimateSharedLayout>
         {fields}

@@ -16,6 +16,7 @@ const useStyles = makeStyles(theme => ({
     mozUserSelect: 'none',
     msUserSelect: 'none',
     userSelect: 'none',
+    '-webkit-tap-highlight-color': 'transparent',
   }),
 
   dot: {
@@ -70,9 +71,17 @@ function Field(props) {
 
   }
 
-  function handleMouseDown(event) {
+  function handleTouchEnd(event) {
 
-    dragControls.start(event, { cursorProgress: { y: 0.5, x: 0.5 } });
+    event.preventDefault();
+
+    event.stopPropagation();
+
+    onClick(null, event.changedTouches[0]);
+
+  }
+
+  function handleMouseDown() {
 
     !isSelected && !isMove && onClick(position);
 
@@ -81,8 +90,9 @@ function Field(props) {
   return (
     <motion.div
       className={classes.root}
-      onMouseDown={canInteract ? handleMouseDown : null}
+      onPointerDown={canInteract ? handleMouseDown : null}
       onMouseUp={canInteract ? handleMouseUp : null}
+      onTouchEnd={canInteract ? handleTouchEnd : null}
       initial={false}
       animate={{
         backgroundColor: isSelected
