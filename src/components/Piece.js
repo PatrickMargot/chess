@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -14,22 +14,21 @@ import {
 import { PIECES } from '../constants';
 
 const useStyles = makeStyles(theme => ({
-  root: {
+  root: ({ isDragging }) => ({
+    zIndex: isDragging ? 2 : 1,
     height: '100%',
     position: 'absolute',
-    zIndex: 1,
     pointerEvents: 'none',
     display: 'grid',
     placeItems: 'center',
-  },
+  }),
 
-  icon: ({ color }) => ({
-    color,
+  icon: {
     width: '70% !important',
     height: '70%',
     stroke: 'black',
     strokeWidth: 15,
-  }),
+  },
 }));
 
 const pieceIcons = {
@@ -49,7 +48,9 @@ function Piece(props) {
     dragControls,
   } = props;
 
-  const classes = useStyles({ color: piece?.color });
+  const [isDragging, setIsDragging] = useState(false);
+
+  const classes = useStyles({ isDragging });
 
   return (
     <AnimatePresence>
@@ -58,6 +59,7 @@ function Piece(props) {
           key={piece.id}
           layoutId={piece.id}
           className={classes.root}
+          style={{ color: piece?.color }}
           exit={{
             opacity: 0,
             scale: 0,
@@ -69,6 +71,8 @@ function Piece(props) {
             damping: 65,
           }}
           drag={canInteract}
+          onDragStart={() => setIsDragging(true)}
+          onDragTransitionEnd={() => setIsDragging(false)}
           dragControls={dragControls}
           dragElastic={1}
           dragMomentum={false}
