@@ -27,7 +27,7 @@ const theme = createMuiTheme({
 
 const useStyles = makeStyles(theme => ({
   root: {
-    height: '100vh',
+    height: '100%',
     overflow: 'hidden',
   },
   chessBoardContainer: {
