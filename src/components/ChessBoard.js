@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -13,10 +13,12 @@ import { useHistory } from "react-router-dom";
 import some from 'lodash/some';
 import capitalize from 'lodash/capitalize';
 import random from 'lodash/random';
+import debounce from 'lodash/debounce';
 
 import { AnimateSharedLayout } from "framer-motion";
 
 import Field from './Field';
+import useWindowFocus from '../hooks/useWindowFocus';
 import createChessBoard from '../utils/createChessBoard';
 import getNextChessBoard from '../utils/getNextChessBoard';
 import getMoves from '../utils/getMoves';
@@ -77,15 +79,13 @@ function ChessBoard(props) {
 
   const chessBoard = chessBoardHistory[chessBoardHistory.length - 1];
 
-  function setChessBoard(chessBoard) {
-
-    setChessBoardHistory([...chessBoardHistory, chessBoard]);
-    
-  }
+  const setChessBoard = (chessBoard) => setChessBoardHistory([...chessBoardHistory, chessBoard]);
 
   const [selectedPosition, setSelectedPosition] = useState(null);
 
   const [dialogText, setDialogText] = useState(null);
+
+  const windowIsFocused = useWindowFocus();
 
   const history = useHistory();
 
@@ -108,8 +108,34 @@ function ChessBoard(props) {
     chessBoardTheme,
   });
 
+  // doComputerMove function will only change when chessBoard changes
+  // this will ensure that the debounce function will work
+  const doComputerMove = useCallback(
 
+    debounce(() => {
+
+      const allMoves = getAllMoves(playerColor, chessBoard);
+
+      const randomMove = allMoves[random(allMoves.length - 1)];
+
+      if (randomMove === undefined) return;
+
+      const { position, move } = randomMove;
+
+      const nextChessBoard = getNextChessBoard(position, move, chessBoard);
+
+      setChessBoard(nextChessBoard);
+
+    }, chessBoardType === CHESSBOARD_TYPE.AUTOPLAY ? 3000 : 1000),
+
+    [chessBoard]
+
+  );
+
+  // run this code when chessBoard changes or on window focus
   useEffect(() => {
+
+    if (!windowIsFocused) return;
 
     if (chessBoardType !== CHESSBOARD_TYPE.AUTOPLAY) {
 
@@ -136,25 +162,10 @@ function ChessBoard(props) {
 
     }
 
-    // do a computer move
-    isComputerRound
-      && setTimeout(() => {
+    // do a computer move if it is a computer round
+    isComputerRound && doComputerMove();
 
-        const allMoves = getAllMoves(playerColor, chessBoard);
-
-        const randomMove = allMoves[random(allMoves.length - 1)];
-
-        if (randomMove === undefined) return;
-
-        const { position, move } = randomMove;
-
-        const nextChessBoard = getNextChessBoard(position, move, chessBoard);
-
-        setChessBoard(nextChessBoard);
-
-      }, chessBoardType === CHESSBOARD_TYPE.AUTOPLAY ? 3000 : 1000);
-
-  }, [chessBoard]);
+  }, [chessBoard, windowIsFocused]);
 
 
   function handleClick(position) {
@@ -181,7 +192,7 @@ function ChessBoard(props) {
 
       setSelectedPosition(position);
 
-      // else if something is selected, deselect
+      // else if something is currently selected, deselect
     } else if (selectedPosition) {
 
       setSelectedPosition(null);
