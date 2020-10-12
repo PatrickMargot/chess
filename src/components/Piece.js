@@ -11,6 +11,8 @@ import {
   faChessKing,
 } from '@fortawesome/free-solid-svg-icons';
 
+import { PIECES } from '../constants';
+
 const useStyles = makeStyles(theme => ({
   root: {
     height: '100%',
@@ -20,15 +22,23 @@ const useStyles = makeStyles(theme => ({
     display: 'grid',
     placeItems: 'center',
   },
+
+  icon: ({ color }) => ({
+    color,
+    width: '70% !important',
+    height: '70%',
+    stroke: 'black',
+    strokeWidth: 15,
+  }),
 }));
 
 const pieceIcons = {
-  PAWN: faChessPawn,
-  BISHOP: faChessBishop,
-  KNIGHT: faChessKnight,
-  ROOK: faChessRook,
-  QUEEN: faChessQueen,
-  KING: faChessKing,
+  [PIECES.PAWN]: faChessPawn,
+  [PIECES.BISHOP]: faChessBishop,
+  [PIECES.KNIGHT]: faChessKnight,
+  [PIECES.ROOK]: faChessRook,
+  [PIECES.QUEEN]: faChessQueen,
+  [PIECES.KING]: faChessKing,
 };
 
 function Piece(props) {
@@ -39,7 +49,7 @@ function Piece(props) {
     dragControls,
   } = props;
 
-  const classes = useStyles();
+  const classes = useStyles({ color: piece?.color });
 
   return (
     <AnimatePresence>
@@ -70,13 +80,7 @@ function Piece(props) {
         >
           <FontAwesomeIcon
             icon={pieceIcons[piece.name]}
-            style={{
-              width: '70%',
-              height: '70%',
-              color: piece.color,
-              stroke: 'black',
-              strokeWidth: 15,
-            }}
+            className={classes.icon}
           />
         </motion.div>
       }
