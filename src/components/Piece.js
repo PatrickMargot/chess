@@ -81,7 +81,7 @@ function Piece(props) {
           onPointerDown={event => dragControls.start(event, { cursorProgress: { y: 0.5, x: 0.5 } })}
           drag={canInteract}
           onDragStart={() => setIsDragging(true)}
-          onDragTransitionEnd={() => setIsDragging(false)}
+          onDragEnd={() => setIsDragging(false)}
           dragControls={dragControls}
           dragElastic={1}
           dragMomentum={false}
