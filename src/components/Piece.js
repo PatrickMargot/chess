@@ -63,7 +63,6 @@ function Piece(props) {
           className={classes.root}
           style={{
             color: piece?.color,
-            pointerEvents: isDragging ? 'none' : 'auto',
           }}
           animate={{
             scale: isMobile && isDragging ? 2 : 1,

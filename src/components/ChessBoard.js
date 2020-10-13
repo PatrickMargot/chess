@@ -170,17 +170,17 @@ function ChessBoard(props) {
   }, [chessBoard, windowIsFocused]);
 
 
-  function handleClick(position, clientCoords = null) {
+  function handleClick({ position, clientCoords }) {
 
     if (clientCoords) {
-    
+
       const { clientX, clientY } = clientCoords;
 
       const elements = document.elementsFromPoint(clientX, clientY);
 
-      const fieldUnderFinger = elements.find(element => element.parentNode === ref.current);
+      const fieldUnderPointer = elements.find(element => element.parentNode === ref.current);
 
-      const index = [...ref.current.children].indexOf(fieldUnderFinger);
+      const index = [...ref.current.children].indexOf(fieldUnderPointer);
 
       if (index < 0) return;
 
@@ -188,14 +188,16 @@ function ChessBoard(props) {
         y: Math.floor(index / 8),
         x: index % 8,
       };
-    
+
+      if (!some(moves, position)) return;
+
     }
 
     const { y, x } = position;
 
     const clickedPiece = chessBoard[y][x];
 
-    // if selected and position is in moves, set next chess board
+    // if selected and position is a move, set next chess board
     if (selectedPosition && some(moves, position)) {
 
       const nextChessBoard = getNextChessBoard(

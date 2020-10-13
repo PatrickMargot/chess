@@ -65,9 +65,11 @@ function Field(props) {
 
   const checkedBackgroundColor = '#ff7961';
 
-  function handleMouseUp() {
+  function handleMouseUp({ clientX, clientY }) {
 
-    isMove && onClick(position);
+    onClick({ clientCoords: { clientX, clientY } });
+
+    console.log({ clientX, clientY })
 
   }
 
@@ -77,13 +79,13 @@ function Field(props) {
 
     event.stopPropagation();
 
-    onClick(null, event.changedTouches[0]);
+    onClick({ clientCoords: event.changedTouches[0] });
 
   }
 
   function handleMouseDown() {
 
-    !isSelected && !isMove && onClick(position);
+    !isSelected && !isMove && onClick({ position });
 
   }
 
