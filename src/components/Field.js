@@ -119,4 +119,4 @@ function Field(props) {
   );
 }
 
-export default Field;
+export default React.memo(Field);

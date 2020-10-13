@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { makeStyles, rgbToHex } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -100,4 +100,4 @@ function Piece(props) {
   );
 }
 
-export default Piece;
+export default React.memo(Piece);

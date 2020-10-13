@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -103,7 +103,12 @@ function ChessBoard(props) {
     chessBoardType === CHESSBOARD_TYPE.AUTOPLAY
     || (chessBoardType === CHESSBOARD_TYPE.COMPUTER && playerColor === COLORS.BLACK);
 
-  const moves = selectedPosition && getMoves(selectedPosition, chessBoard);
+  const moves = useMemo(
+    () => getMoves(selectedPosition, chessBoard),
+    [selectedPosition]
+  );
+
+  console.log(moves)
 
   const classes = useStyles({
     isComputerRound,
