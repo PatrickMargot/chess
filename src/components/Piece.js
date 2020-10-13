@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, rgbToHex } from '@material-ui/core/styles';
 import { motion, AnimatePresence, useDragControls } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -27,7 +27,7 @@ const useStyles = makeStyles(theme => ({
   icon: {
     width: '70% !important',
     height: '70%',
-    stroke: 'black',
+    stroke: '#444',
     strokeWidth: 15,
   },
 }));
